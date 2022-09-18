@@ -1,0 +1,78 @@
+﻿@model PetsProject.Models.Pets
+
+@{
+    ViewData["Title"] = "Index";
+
+    //can delete once I don't need it
+    //var test = PetsProject.Controllers.PetsController.ReturnPetImage();
+    //HttpClient client = new HttpClient();
+    //async Task<string> ReturnPetImage()
+    //{
+    //    var image = await client.GetStringAsync("http://shibe.online/api/shibes");
+    //    //image = HttpContext.
+    //    var thirdRandomImage = image.Substring(2, image.Length - 4);
+    //    var randImage = new []{ "https://cataas.com/cat", "https://place.dog/300/200", thirdRandomImage };
+    //    var randomResult = new Random();
+    //    return randImage[randomResult.Next(0,2)];
+    //}
+    //var imageURL = ReturnPetImage();
+
+}
+
+<h1>Index</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        
+        <form asp-controller="Pets" asp-action="Create">
+            <img src="data:image/png;base64,@Model.Base64Image" alt="Animal Image"/>
+            <input type="hidden" asp-for="@Model.Base64Image" />
+            <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
+            
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input type="button" value="Next" class="btn btn-primary" onclick="location.reload(true);"/>
+                <input type="submit" value="Save" class="btn btn-success" />
+            </div>
+        </form>
+        <form asp-controller="Categories" asp-action="Create">
+            <div class="form-group">
+@*                <label asp-for="BaseSixtyFourName" class="control-label"></label>
+                <input asp-for="BaseSixtyFourName" class="form-control" />
+                <span asp-validation-for="BaseSixtyFourName" class="text-danger"></span>*@
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create Category" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@*Leaving it for later*@
+<hr />
+<hr />
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Base64Image)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@*        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Base64Name)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }*@
+    </tbody>
+</table>
