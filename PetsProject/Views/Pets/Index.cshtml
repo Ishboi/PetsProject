@@ -25,14 +25,14 @@
     <div class="col-md-4">
         
         <form asp-controller="Pets" asp-action="Create">
-            <img src="data:image/png;base64,@Model.Base64Image" alt="Animal Image"/>
+            <img src="data:image/png;base64,@Model.Base64Image" alt="Animal Image" class="input-bottom" />
             <input type="hidden" asp-for="@Model.Base64Image" />
             <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
             
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <input type="button" value="Next" class="btn btn-primary" onclick="location.reload(true);"/>
-                <input type="submit" value="Save" class="btn btn-success" />
+                <input type="button" value="Next" class="btn btn-primary input-bottom" onclick="location.reload(true);" />
+                <input type="submit" value="Save" class="btn btn-success input-bottom" />
             </div>
         </form>
         <form asp-controller="Categories" asp-action="Create">
@@ -61,6 +61,20 @@
         </tr>
     </thead>
     <tbody>
+        @foreach (var item in ViewBag.Categories)
+        {
+            <tr>
+                <td>
+                    <h1>@item.Name</h1>
+                    @Html.DisplayFor(modelItem => item)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id" type="hidden">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id" type="hidden">Delete</a>
+                </td>
+            </tr>
+        }
 @*        @foreach (var item in Model)
         {
             <tr>

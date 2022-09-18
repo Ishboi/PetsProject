@@ -27,27 +27,14 @@ namespace PetsProject.Controllers
         // GET: Pets
         public async Task<IActionResult> Index()
         {
-
-            var image = await client.GetStringAsync("http://shibe.online/api/shibes");
-            //image = HttpContext.
-            var thirdRandomImage = image.Substring(2, image.Length - 4);
-            var randImage = new[] { "https://cataas.com/cat", "https://place.dog/300/200", thirdRandomImage };
-            var randomResult = new Random();
-            var randUrl = randImage[randomResult.Next(0, 3)];
-            var imageStream = await client.GetStreamAsync(randUrl);
-
-
-            //Conver to base64
-            var imageBase64 = ConvertToBase64(imageStream);
-            var resultPet = new Pets()
-                {
-                    Id = Guid.NewGuid(),
-                    Base64Image = imageBase64
-
-                };
+            //line below just testing
+            ViewBag.Categories = _context.Categories;
+            Pets resultPet = await Base64ImageToPetModel();
             return View(resultPet);
             //return View(await _context.Pets.ToListAsync());
         }
+
+
 
         // GET: Pets/Details/5
         public async Task<IActionResult> Details(Guid? id)
@@ -80,18 +67,23 @@ namespace PetsProject.Controllers
         //public async Task<IActionResult> Create([Bind("Id,BaseSixtyFourName")] Pets pets)
         public async Task<IActionResult> Create(Pets pets)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(pets);
-                
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(pets);
+            _context.Add(pets);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+            //return View(pets);
+            //if (ModelState.IsValid)
+            //{
+            //    _context.Add(pets);
+
+            //    await _context.SaveChangesAsync();
+            //    return RedirectToAction(nameof(Index));
+            //}
+            //return View(pets);
         }
 
         // GET: Pets/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null || _context.Pets == null)
             {
@@ -162,7 +154,7 @@ namespace PetsProject.Controllers
         // POST: Pets/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             if (_context.Pets == null)
             {
@@ -184,17 +176,15 @@ namespace PetsProject.Controllers
         }
 
 
-        //Make call 
-        public string ReturnPetImage()
-        {
-            var debugIfRandom = GetRandomImageUrl().Result;
-            return debugIfRandom;
-        }
 
-        public async Task<string> GetRandomImageUrl()
+
+        //Send to helper class
+
+
+        //Creates pet model based on base64 string and Guid
+        private async Task<Pets> Base64ImageToPetModel()
         {
             var image = await client.GetStringAsync("http://shibe.online/api/shibes");
-            //image = HttpContext.
             var thirdRandomImage = image.Substring(2, image.Length - 4);
             var randImage = new[] { "https://cataas.com/cat", "https://place.dog/300/200", thirdRandomImage };
             var randomResult = new Random();
@@ -204,14 +194,15 @@ namespace PetsProject.Controllers
 
             //Conver to base64
             var imageBase64 = ConvertToBase64(imageStream);
+            var resultPet = new Pets()
+            {
+                Id = Guid.NewGuid(),
+                Base64Image = imageBase64
 
-            //var imageBase64 = Convert.ToBase64String(imageBytes);
-
-            return imageBase64;
-            //return randImage[randomResult.Next(0, 3)];
+            };
+            return resultPet;
         }
-
-        //Send to helper class
+        //Converts stream to base64 string
         public string ConvertToBase64(Stream stream)
         {
             byte[] bytes;
