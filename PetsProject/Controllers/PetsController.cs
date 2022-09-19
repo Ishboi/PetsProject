@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PetsProject.Data;
 using PetsProject.Models;
+using PetsProject.Controllers;
 
 namespace PetsProject.Controllers
 {
@@ -29,6 +30,7 @@ namespace PetsProject.Controllers
         {
             //line below just testing
             ViewBag.Categories = _context.Categories;
+            ViewBag.Pets = _context.Pets;
             Pets resultPet = await Base64ImageToPetModel();
             return View(resultPet);
             //return View(await _context.Pets.ToListAsync());
@@ -50,6 +52,17 @@ namespace PetsProject.Controllers
             {
                 return NotFound();
             }
+
+            return View(pets);
+        }
+
+        // Get categories associated with pet image
+        public async Task<IActionResult> PetCategories(Guid petId, Guid categoryId)
+        {
+
+            var pets = await _context.Pets.FirstOrDefaultAsync(pet => pet.Id.Equals("7d01e278-3e15-48b3-a941-ab71a2879c14"));
+            //pets.
+            var categories = _context.Pets.SelectMany(p => p.Categories).Where(c => c.Id.Equals(categoryId));
 
             return View(pets);
         }
@@ -133,6 +146,32 @@ namespace PetsProject.Controllers
             return View(pets);
         }
 
+        /* Testing
+        //Edit Category
+        public async Task<IActionResult> EditCategory(Guid categoryId,Pets pets)
+        {
+            var category = await _context.Categories.FindAsync(categoryId);
+
+            return View(category);
+
+        }
+
+        //Delete Category
+        public async void DeleteCategory(Guid? id)
+        {
+            var category = new CategoriesController(_context);
+            await category.Delete(id);
+        }
+
+        //Details Category
+        public async void CategoryDetails(Guid? id)
+        {
+            var category = new CategoriesController(_context);
+            await category.Details(id);
+        }
+        */
+
+
         // GET: Pets/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
@@ -174,6 +213,8 @@ namespace PetsProject.Controllers
         {
           return _context.Pets.Any(e => e.Id == id);
         }
+
+
 
 
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PetsProject.Models;
 
 namespace PetsProject.Data
 {
@@ -11,5 +12,6 @@ namespace PetsProject.Data
         }
         public DbSet<PetsProject.Models.Categories> Categories { get; set; }
         public DbSet<PetsProject.Models.Pets> Pets { get; set; }
+        public DbSet<PetsProject.Models.PetsCategories> PetsCategories { get; set; }
     }
 }
