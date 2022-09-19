@@ -1,4 +1,5 @@
-﻿@using PetsProject.Models;
+﻿@using PetsProject.Controllers
+@using PetsProject.Models;
 
 @model PetsProject.Models.Pets
 @Html.HiddenFor(item => item.Id)
@@ -6,20 +7,6 @@
 
 @{
     ViewData["Title"] = "Index";
-
-    //can delete once I don't need it
-    //var test = PetsProject.Controllers.PetsController.ReturnPetImage();
-    //HttpClient client = new HttpClient();
-    //async Task<string> ReturnPetImage()
-    //{
-    //    var image = await client.GetStringAsync("http://shibe.online/api/shibes");
-    //    //image = HttpContext.
-    //    var thirdRandomImage = image.Substring(2, image.Length - 4);
-    //    var randImage = new []{ "https://cataas.com/cat", "https://place.dog/300/200", thirdRandomImage };
-    //    var randomResult = new Random();
-    //    return randImage[randomResult.Next(0,2)];
-    //}
-    //var imageURL = ReturnPetImage();
 
 }
 
@@ -36,7 +23,6 @@
             <img src="data:image/png;base64,@Model.Base64Image" alt="Animal Image" class="input-bottom" />
             <input type="hidden" asp-for="@Model.Base64Image" />
             <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
-            
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         </form>
         <form asp-controller="Categories" asp-action="Create">
@@ -99,6 +85,9 @@
             </tr>
         }
         </form>
+
+        <hr />
+
 
 
 @*        @foreach (var item in Model)

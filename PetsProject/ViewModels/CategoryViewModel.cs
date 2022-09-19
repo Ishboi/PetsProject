@@ -3,5 +3,7 @@
     public class CategoryViewModel
     {
         public Guid Id { get; set; }
+
+
     }
 }

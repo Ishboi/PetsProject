@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using PetsProject.Data;
 using PetsProject.Models;
 using PetsProject.Controllers;
-using PetsProject.ViewModels;
 
 namespace PetsProject.Controllers
 {
@@ -33,6 +32,13 @@ namespace PetsProject.Controllers
             ViewBag.Categories = _context.Categories;
             ViewBag.Pets = _context.Pets;
             Pets resultPet = await Base64ImageToPetModel();
+
+            var exists = ImageWasSaved(resultPet.Id);
+            if (exists)
+            {
+                ViewBag.CategoriesAssociated = PetCategoriesDeleteThis(resultPet.Id);
+            }
+
             return View(resultPet);
             //return View(await _context.Pets.ToListAsync());
         }
@@ -58,14 +64,67 @@ namespace PetsProject.Controllers
         }
 
         // Get categories associated with pet image
-        public async Task<IActionResult> PetCategories(Guid petId, Guid categoryId)
+        public async Task<IActionResult> PetCategories(Guid petId)
         {
+            ViewBag.Categories = _context.Categories;
+            ViewBag.Pets = _context.Pets;
+            var foundPets = new Pets();
             var categoriesModel = new Categories();
             var petsCategoriesModel = new PetsCategories();
 
-            var categories = await _context.PetsCategories.Include(c => c.Categories).Where(p => p.PetId.Equals(petId)).Select(c => new CategoryViewModel { Id = c.CategoryId }).ToListAsync();
+            //pets.
+            var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
+            foreach(PetsCategories item in categories)
+            {
+                foundPets = await _context.Pets.Where(p => p.Id.Equals(item.PetId)).FirstOrDefaultAsync();
+                petsCategoriesModel.Pets = item.Pets;
+                petsCategoriesModel.PetId = item.PetId;
 
-            return View("Index",categories);
+                categoriesModel = await _context.Categories.Where(c => c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync();
+                //categoriesModel.Name = foundCategories.Name;
+                categoriesModel.Id = item.Categories.Id;
+                //petsCategoriesModel.Categories = foundCategories;
+                petsCategoriesModel.CategoryId = item.CategoryId;
+
+                foundPets.Categories.Add(categoriesModel);
+
+            }
+            if(foundPets.Categories is not null)
+            {
+                //Trying to solve this viewbag in order to show categories that are associated
+                ViewBag.PetsCategoriesSaved = foundPets.Categories;
+            }
+
+            return View("Index", petsCategoriesModel.Pets);
+        }
+
+
+        // DELETE after setting it right
+        public async Task<Pets> PetCategoriesDeleteThis(Guid petId)
+        {
+            ViewBag.Categories = _context.Categories;
+            ViewBag.Pets = _context.Pets;
+            var foundPets = new Pets();
+            var categoriesModel = new Categories();
+            var petsCategoriesModel = new PetsCategories();
+
+            //pets.
+            var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
+            foreach (PetsCategories item in categories)
+            {
+                foundPets = await _context.Pets.Where(p => p.Id.Equals(item.PetId)).FirstOrDefaultAsync();
+                petsCategoriesModel.Pets = item.Pets;
+                petsCategoriesModel.PetId = item.PetId;
+
+                categoriesModel = await _context.Categories.Where(c => c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync();
+                //categoriesModel.Name = foundCategories.Name;
+                categoriesModel.Id = item.Categories.Id;
+                //petsCategoriesModel.Categories = foundCategories;
+                petsCategoriesModel.CategoryId = item.CategoryId;
+
+            }
+            return await Task.FromResult(petsCategoriesModel.Pets);
+
         }
 
         // GET: Pets/Create
@@ -213,6 +272,13 @@ namespace PetsProject.Controllers
         private bool PetsExists(Guid id)
         {
           return _context.Pets.Any(e => e.Id == id);
+        }
+
+        //Checks if image has already been saved by the user
+        public Boolean ImageWasSaved(Guid id)
+        {
+            var anyPets = _context.Pets.Where(p => p.Id.Equals(id));
+            return anyPets is not null;
         }
 
 
