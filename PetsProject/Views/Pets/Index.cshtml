@@ -36,6 +36,46 @@
                 <input type="submit" value="Create Category" class="btn btn-primary" />
             </div>
         </form>
+        
+        @*Need to change asp-action for a method that deletes the category from pets*@
+        <form asp-controller="Pets" asp-action="Edit">
+            <h1 runat="server">Whatever comes below is what I need</h1>
+            @if (ViewBag.PetCategoriesSaved is not null)
+            {
+                @foreach (var item in @ViewBag.PetCategoriesSaved)
+                {
+                    //this div needs to encapsulate the foreach so the buttons stay side by side
+                    <div class="form-group">
+                        <input type="submit" value="@item.Name" class="btn btn-success input-bottom" />
+                        <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
+                    </div>
+                    <tr>
+                        //this td is for testing
+                        <td>
+                            <p><h1>OlA @item.Id</h1></p>
+                            <input type="submit" value="@item.Name" class="btn btn-success input-bottom" />
+                            @Html.DisplayFor(modelItem => item)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-petId="@item.Id" value="@item.Id">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id" value="@item.Id">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id" value="@item.Id">Delete</a>
+                            <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
+                        </td>
+                    </tr>
+                }
+
+            }
+        </form>
+
+        <form asp-controller="Pets" asp-action="AddCategoryToPet">
+            @foreach (var item in ViewBag.Categories)
+            {
+                @*@if ()*@
+
+            }
+        </form>
+
     </div>
 </div>
 

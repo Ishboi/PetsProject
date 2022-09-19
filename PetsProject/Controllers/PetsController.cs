@@ -31,12 +31,14 @@ namespace PetsProject.Controllers
             //line below just testing
             ViewBag.Categories = _context.Categories;
             ViewBag.Pets = _context.Pets;
+            ViewBag.CategoriesWithNoPet = _context.Categories;
             Pets resultPet = await Base64ImageToPetModel();
 
             var exists = ImageWasSaved(resultPet.Id);
             if (exists)
             {
-                ViewBag.CategoriesAssociated = PetCategoriesDeleteThis(resultPet.Id);
+                ViewBag.CategoriesAssociated = PetCategories(resultPet.Id);
+                //ViewBag.CategoriesAssociated = PetCategories(Guid.Parse("15bed543-68bc-4b90-bcb8-1511f3d479d0"));
             }
 
             return View(resultPet);
@@ -68,42 +70,62 @@ namespace PetsProject.Controllers
         {
             ViewBag.Categories = _context.Categories;
             ViewBag.Pets = _context.Pets;
+
+            var categoriesExcluded = new List<Categories>() { };
+
+            //Need to put this into a Viewmodel
             var foundPets = new Pets();
             var categoriesModel = new Categories();
             var petsCategoriesModel = new PetsCategories();
 
             //pets.
             var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
-            foreach(PetsCategories item in categories)
+            //Exclude categories
+            //categoriesExcluded.Add(await _context.PetsCategories.Where(p => p.PetId.Equals(petId)).ToListAsync();
+            foreach (PetsCategories item in categories)
             {
                 foundPets = await _context.Pets.Where(p => p.Id.Equals(item.PetId)).FirstOrDefaultAsync();
                 petsCategoriesModel.Pets = item.Pets;
                 petsCategoriesModel.PetId = item.PetId;
 
                 categoriesModel = await _context.Categories.Where(c => c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync();
-                //categoriesModel.Name = foundCategories.Name;
                 categoriesModel.Id = item.Categories.Id;
-                //petsCategoriesModel.Categories = foundCategories;
                 petsCategoriesModel.CategoryId = item.CategoryId;
 
                 foundPets.Categories.Add(categoriesModel);
 
+
+                //Excluding this way doesn't work because it only runs as many times as there are in categories which makes sense..
+                //Exclude categories
+                //categoriesExcluded.Add(await _context.Categories.Where(c => !c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync());
             }
-            if(foundPets.Categories is not null)
-            {
-                //Trying to solve this viewbag in order to show categories that are associated
-                ViewBag.PetsCategoriesSaved = foundPets.Categories;
-            }
+            ViewBag.PetCategoriesSaved = foundPets.Categories.Count > 0 ? foundPets.Categories : null;
+            //if (foundPets.Categories.Count > 0)
+            //{
+            //    ViewBag.PetCategoriesSaved = foundPets.Categories;
+            //}
+            ViewBag.CategoriesWithNoPet = ViewBag.PetCategoriesSaved is not null ? categoriesExcluded : null;
 
             return View("Index", petsCategoriesModel.Pets);
         }
 
+        //public IList CategoriesWithNoPet(Guid categoryId)
+        //{
+        //    var test = categories.Contains.
+        //    foreach (var item in ViewBag.Categories)
+        //    {
+
+        //    }
+        //    ViewBag.CategoriesWithNoPet.Add()
+        //}
 
         // DELETE after setting it right
         public async Task<Pets> PetCategoriesDeleteThis(Guid petId)
         {
             ViewBag.Categories = _context.Categories;
             ViewBag.Pets = _context.Pets;
+
+            //Need to put this into viewmodel
             var foundPets = new Pets();
             var categoriesModel = new Categories();
             var petsCategoriesModel = new PetsCategories();
@@ -122,7 +144,14 @@ namespace PetsProject.Controllers
                 //petsCategoriesModel.Categories = foundCategories;
                 petsCategoriesModel.CategoryId = item.CategoryId;
 
+                foundPets.Categories.Add(categoriesModel);
             }
+            if (foundPets.Categories.Count > 0)
+            {
+                //Trying to solve this viewbag in order to show categories that are associated
+                ViewBag.PetCategoriesSaved = foundPets.Categories;
+            }
+
             return await Task.FromResult(petsCategoriesModel.Pets);
 
         }
@@ -278,7 +307,7 @@ namespace PetsProject.Controllers
         public Boolean ImageWasSaved(Guid id)
         {
             var anyPets = _context.Pets.Where(p => p.Id.Equals(id));
-            return anyPets is not null;
+            return anyPets.Count() > 0;
         }
 
 
