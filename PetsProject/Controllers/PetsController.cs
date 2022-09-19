@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using PetsProject.Data;
 using PetsProject.Models;
 using PetsProject.Controllers;
+using PetsProject.ViewModels;
 
 namespace PetsProject.Controllers
 {
@@ -59,12 +60,12 @@ namespace PetsProject.Controllers
         // Get categories associated with pet image
         public async Task<IActionResult> PetCategories(Guid petId, Guid categoryId)
         {
+            var categoriesModel = new Categories();
+            var petsCategoriesModel = new PetsCategories();
 
-            var pets = await _context.Pets.FirstOrDefaultAsync(pet => pet.Id.Equals("7d01e278-3e15-48b3-a941-ab71a2879c14"));
-            //pets.
-            var categories = _context.Pets.SelectMany(p => p.Categories).Where(c => c.Id.Equals(categoryId));
+            var categories = await _context.PetsCategories.Include(c => c.Categories).Where(p => p.PetId.Equals(petId)).Select(c => new CategoryViewModel { Id = c.CategoryId }).ToListAsync();
 
-            return View(pets);
+            return View("Index",categories);
         }
 
         // GET: Pets/Create

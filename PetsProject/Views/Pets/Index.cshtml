@@ -1,4 +1,6 @@
-﻿@model PetsProject.Models.Pets
+﻿@using PetsProject.Models;
+
+@model PetsProject.Models.Pets
 @Html.HiddenFor(item => item.Id)
 @Html.HiddenFor(item => item.Base64Image)
 
@@ -80,7 +82,7 @@
         }
 
         @* Testing *@
-
+        <form asp-controller="Categories" asp-action="Create">
         @foreach (var item in ViewBag.Pets)
         {
             <tr>
@@ -89,13 +91,14 @@
                     @Html.DisplayFor(modelItem => item)
                 </td>
                 <td>
-                    <a asp-action="PetCategories"  asp-route-id="@item.Id" value="@item.Id">Edit</a> |
+                    <a asp-action="PetCategories"  asp-route-petId="@item.Id" value="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id" value="@item.Id">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.Id" value="@item.Id">Delete</a>
                     <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
                 </td>
             </tr>
         }
+        </form>
 
 
 @*        @foreach (var item in Model)

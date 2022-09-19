@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PetsProject.Data;
 
@@ -11,9 +12,10 @@ using PetsProject.Data;
 namespace PetsProject.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919112219_changing foreign keys")]
+    partial class changingforeignkeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +23,6 @@ namespace PetsProject.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("CategoriesPets", b =>
-                {
-                    b.Property<Guid>("CategoriesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PetsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CategoriesId", "PetsId");
-
-                    b.HasIndex("PetsId");
-
-                    b.ToTable("CategoriesPets");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -249,7 +236,12 @@ namespace PetsProject.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("PetsId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PetsId");
 
                     b.ToTable("Categories");
                 });
@@ -290,21 +282,6 @@ namespace PetsProject.Data.Migrations
                     b.HasIndex("PetsId");
 
                     b.ToTable("PetsCategories");
-                });
-
-            modelBuilder.Entity("CategoriesPets", b =>
-                {
-                    b.HasOne("PetsProject.Models.Categories", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PetsProject.Models.Pets", null)
-                        .WithMany()
-                        .HasForeignKey("PetsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -358,6 +335,13 @@ namespace PetsProject.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PetsProject.Models.Categories", b =>
+                {
+                    b.HasOne("PetsProject.Models.Pets", null)
+                        .WithMany("Categories")
+                        .HasForeignKey("PetsId");
+                });
+
             modelBuilder.Entity("PetsProject.Models.PetsCategories", b =>
                 {
                     b.HasOne("PetsProject.Models.Categories", "Categories")
@@ -375,6 +359,11 @@ namespace PetsProject.Data.Migrations
                     b.Navigation("Categories");
 
                     b.Navigation("Pets");
+                });
+
+            modelBuilder.Entity("PetsProject.Models.Pets", b =>
+                {
+                    b.Navigation("Categories");
                 });
 #pragma warning restore 612, 618
         }
