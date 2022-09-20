@@ -14,7 +14,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        
+
         <form asp-controller="Pets" asp-action="Create">
             <div class="form-group">
                 <input type="button" value="Next" class="btn btn-primary input-bottom" onclick="location.reload(true);" />
@@ -26,20 +26,20 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         </form>
         <form asp-controller="Categories" asp-action="Create">
-           <Button asp-controller="Pets" asp-action="PetCategories" value="">Test</Button>
+            <Button asp-controller="Pets" asp-action="PetCategories" value="">Test</Button>
             <div class="form-group">
-@*                <label asp-for="BaseSixtyFourName" class="control-label"></label>
-                <input asp-for="BaseSixtyFourName" class="form-control" />
-                <span asp-validation-for="BaseSixtyFourName" class="text-danger"></span>*@
+                @*                <label asp-for="Base64Image" class="control-label"></label>
+                <input asp-for="Base64Image" class="form-control" />
+                <span asp-validation-for="Base64Image" class="text-danger"></span>*@
             </div>
             <div class="form-group">
                 <input type="submit" value="Create Category" class="btn btn-primary" />
             </div>
         </form>
-        
+
         @*Need to change asp-action for a method that deletes the category from pets*@
         <form asp-controller="Pets" asp-action="Edit">
-            <h1 runat="server">Whatever comes below is what I need</h1>
+            <h1>You think this animal is: </h1>
             @if (ViewBag.PetCategoriesSaved is not null)
             {
                 @foreach (var item in @ViewBag.PetCategoriesSaved)
@@ -50,30 +50,37 @@
                         <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
                     </div>
                     <tr>
-                        //this td is for testing
+                        @*this td is for testing*@
                         <td>
                             <p><h1>OlA @item.Id</h1></p>
-                            <input type="submit" value="@item.Name" class="btn btn-success input-bottom" />
-                            @Html.DisplayFor(modelItem => item)
+                            @*<input type="submit" value="@item.Name" class="btn btn-success input-bottom" />
+                            @Html.DisplayFor(modelItem => item)*@
                         </td>
                         <td>
-                            <a asp-action="Edit" asp-route-petId="@item.Id" value="@item.Id">Edit</a> |
+                            <input type="submit" value="Save Category to Pet" class="btn btn-success input-bottom" />
+                            <a asp-action="Edit" asp-route-id="@Model.Id" value="@Model.Id">Edit Test</a> |
                             <a asp-action="Details" asp-route-id="@item.Id" value="@item.Id">Details</a> |
                             <a asp-action="Delete" asp-route-id="@item.Id" value="@item.Id">Delete</a>
                             <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
+                            <input type="hidden" asp-for="@Model.Base64Image" />
                         </td>
                     </tr>
                 }
 
             }
+
         </form>
 
         <form asp-controller="Pets" asp-action="AddCategoryToPet">
-            @foreach (var item in ViewBag.Categories)
-            {
-                @*@if ()*@
-
-            }
+            <div class="form-group">
+                @if (ViewBag.CategoriesWithNoPet is not null)
+                    {<p>You still think this animal isn't:</p>}
+                    @foreach (var item in @ViewBag.CategoriesWithNoPet)
+                    {
+                        <input type="submit" value="@item.Name" class="btn btn-primary input-bottom input-bottom" />
+                        <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
+                    }
+            </div>
         </form>
 
     </div>
@@ -109,39 +116,39 @@
 
         @* Testing *@
         <form asp-controller="Categories" asp-action="Create">
-        @foreach (var item in ViewBag.Pets)
-        {
+            @foreach (var item in ViewBag.Pets)
+            {
             <tr>
                 <td>
                     <p><h1>@item.Id</h1></p>
-                    @Html.DisplayFor(modelItem => item)
+                        @Html.DisplayFor(modelItem => item)
                 </td>
                 <td>
-                    <a asp-action="PetCategories"  asp-route-petId="@item.Id" value="@item.Id">Edit</a> |
+                    <a asp-action="PetCategories" asp-route-petId="@item.Id" value="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id" value="@item.Id">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.Id" value="@item.Id">Delete</a>
                     <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
                 </td>
             </tr>
-        }
+            }
         </form>
 
         <hr />
 
 
 
-@*        @foreach (var item in Model)
+        @*        @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Base64Name)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
+        <tr>
+        <td>
+        @Html.DisplayFor(modelItem => item.Base64Image)
+        </td>
+        <td>
+        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+        </td>
+        </tr>
         }*@
     </tbody>
 </table>

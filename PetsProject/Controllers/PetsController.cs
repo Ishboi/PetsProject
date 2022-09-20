@@ -71,17 +71,13 @@ namespace PetsProject.Controllers
             ViewBag.Categories = _context.Categories;
             ViewBag.Pets = _context.Pets;
 
-            var categoriesExcluded = new List<Categories>() { };
 
-            //Need to put this into a Viewmodel
             var foundPets = new Pets();
             var categoriesModel = new Categories();
             var petsCategoriesModel = new PetsCategories();
 
-            //pets.
             var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
-            //Exclude categories
-            //categoriesExcluded.Add(await _context.PetsCategories.Where(p => p.PetId.Equals(petId)).ToListAsync();
+
             foreach (PetsCategories item in categories)
             {
                 foundPets = await _context.Pets.Where(p => p.Id.Equals(item.PetId)).FirstOrDefaultAsync();
@@ -89,35 +85,33 @@ namespace PetsProject.Controllers
                 petsCategoriesModel.PetId = item.PetId;
 
                 categoriesModel = await _context.Categories.Where(c => c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync();
-                categoriesModel.Id = item.Categories.Id;
-                petsCategoriesModel.CategoryId = item.CategoryId;
+                if (categoriesModel is not null && foundPets is not null)
+                {
 
-                foundPets.Categories.Add(categoriesModel);
+                    categoriesModel.Id = item.Categories.Id;
+                    petsCategoriesModel.CategoryId = item.CategoryId;
 
+                    foundPets.Categories.Add(categoriesModel);
+                }
 
-                //Excluding this way doesn't work because it only runs as many times as there are in categories which makes sense..
-                //Exclude categories
-                //categoriesExcluded.Add(await _context.Categories.Where(c => !c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync());
             }
+
+            //Categories not associated with pet
+            CategoriesWithNoPet(foundPets);
+
+
             ViewBag.PetCategoriesSaved = foundPets.Categories.Count > 0 ? foundPets.Categories : null;
-            //if (foundPets.Categories.Count > 0)
-            //{
-            //    ViewBag.PetCategoriesSaved = foundPets.Categories;
-            //}
-            ViewBag.CategoriesWithNoPet = ViewBag.PetCategoriesSaved is not null ? categoriesExcluded : null;
+
 
             return View("Index", petsCategoriesModel.Pets);
         }
 
-        //public IList CategoriesWithNoPet(Guid categoryId)
-        //{
-        //    var test = categories.Contains.
-        //    foreach (var item in ViewBag.Categories)
-        //    {
-
-        //    }
-        //    ViewBag.CategoriesWithNoPet.Add()
-        //}
+        public void CategoriesWithNoPet(Pets foundPets)
+        {
+            var allCategories = _context.Categories.ToList();
+            var categoriesExcluded = allCategories.Except(foundPets.Categories.ToList());
+            ViewBag.CategoriesWithNoPet = categoriesExcluded;
+        }
 
         // DELETE after setting it right
         public async Task<Pets> PetCategoriesDeleteThis(Guid petId)
@@ -166,7 +160,7 @@ namespace PetsProject.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,BaseSixtyFourName")] Pets pets)
+        //public async Task<IActionResult> Create([Bind("Id,Base64Image")] Pets pets)
         public async Task<IActionResult> Create(Pets pets)
         {
             _context.Add(pets);
@@ -205,15 +199,25 @@ namespace PetsProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,BaseSixtyFourName")] Pets pets)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Base64Image")] Pets pets)
         {
             if (id != pets.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            //if (ModelState.IsValid)
+            if(true)
             {
+                //var pet = await _context.Pets.FindAsync(id);
+                //pets.Base64Image = pet.Base64Image;
+                var testCategory = _context.Categories.Find(Guid.Parse("92a58340-5b5f-4f24-ee94-08da99ca0cbf"));
+                var categories = _context.Categories.Where(c => c.Id.Equals("92a58340-5b5f-4f24-ee94-08da99ca0cbf")).ToList().FirstOrDefault();
+                if(testCategory is not null)
+                {
+                    if (pets.Categories.Count <= 0) new List<Categories>() { };
+                    pets.Categories.Add(testCategory);
+                }
                 try
                 {
                     _context.Update(pets);
@@ -293,14 +297,14 @@ namespace PetsProject.Controllers
             {
                 _context.Pets.Remove(pets);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PetsExists(Guid id)
         {
-          return _context.Pets.Any(e => e.Id == id);
+            return _context.Pets.Any(e => e.Id == id);
         }
 
         //Checks if image has already been saved by the user
