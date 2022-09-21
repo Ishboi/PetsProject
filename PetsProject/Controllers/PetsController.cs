@@ -39,6 +39,11 @@ namespace PetsProject.Controllers
             var exists = ImageWasSaved(resultPet.Id);
             if (exists)
             {
+                //If saved pet image doesn't doesn't have any category yet return model to View
+                if(!_context.PetsCategories.Where(p => p.PetId.Equals(resultPet.Id)).Any())
+                {
+                    return View(resultPet);
+                }
                 ViewBag.CategoriesAssociated = PetCategories(resultPet.Id);
                 //ViewBag.CategoriesAssociated = PetCategories(Guid.Parse("15bed543-68bc-4b90-bcb8-1511f3d479d0"));
             }
@@ -50,7 +55,7 @@ namespace PetsProject.Controllers
 
         // Get categories associated with pet image
         public async Task<IActionResult> PetCategories(Guid petId)
-        {
+            {
             ViewBag.Categories = _context.Categories;
             ViewBag.Pets = _context.Pets;
 
@@ -60,6 +65,11 @@ namespace PetsProject.Controllers
             var petsCategoriesModel = new PetsCategories();
 
             var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
+            if (!categories.Any())
+            {
+                foundPets = await _context.Pets.Where(p => p.Id.Equals(petId)).FirstOrDefaultAsync();
+                petsCategoriesModel.Pets = foundPets;
+            }
 
             foreach (PetsCategories item in categories)
             {
