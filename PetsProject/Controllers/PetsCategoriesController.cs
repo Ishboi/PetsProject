@@ -50,8 +50,6 @@ namespace PetsProject.Controllers
         }
 
         // POST: PetsCategories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id")] PetsCategories petsCategories)
@@ -63,6 +61,14 @@ namespace PetsProject.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(petsCategories);
+        }
+
+        [HttpPost]
+        public void AddCategoryToPet([Bind("Id, PetId, CategoryId")] PetsCategories petsCategories)
+        {
+            var test = petsCategories;
+            Console.WriteLine("ok");
+
         }
 
         // GET: PetsCategories/Edit/5

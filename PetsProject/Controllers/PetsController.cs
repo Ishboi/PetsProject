@@ -157,7 +157,6 @@ namespace PetsProject.Controllers
         }
 
         // POST: Pets/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create([Bind("Id,Base64Image")] Pets pets)
@@ -168,14 +167,25 @@ namespace PetsProject.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
             //return View(pets);
-            //if (ModelState.IsValid)
-            //{
-            //    _context.Add(pets);
+        }
 
-            //    await _context.SaveChangesAsync();
-            //    return RedirectToAction(nameof(Index));
-            //}
-            //return View(pets);
+        [HttpPost]
+        public async Task<IActionResult> AddCategoryToPet(Guid petId, Guid categoryId, Pets pets)
+        {
+            //var pet = await _context.Pets.FindAsync(id);
+            //pets.Base64Image = pet.Base64Image;
+            var testCategory = _context.Categories.Find(Guid.Parse("92a58340-5b5f-4f24-ee94-08da99ca0cbf"));
+            if (testCategory is not null)
+            {
+                if (pets.Categories.Count <= 0) new List<Categories>() { };
+                pets.Categories.Add(testCategory);
+            }
+
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id");
+            ViewData["PetId"] = new SelectList(_context.Pets, "Id", "Id");
+            var test = pets.Categories;
+            Console.WriteLine("ok");
+            return View(test);
         }
 
         // GET: Pets/Edit/5
@@ -195,8 +205,6 @@ namespace PetsProject.Controllers
         }
 
         // POST: Pets/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Id,Base64Image")] Pets pets)
@@ -209,15 +217,7 @@ namespace PetsProject.Controllers
             //if (ModelState.IsValid)
             if(true)
             {
-                //var pet = await _context.Pets.FindAsync(id);
-                //pets.Base64Image = pet.Base64Image;
-                var testCategory = _context.Categories.Find(Guid.Parse("92a58340-5b5f-4f24-ee94-08da99ca0cbf"));
-                var categories = _context.Categories.Where(c => c.Id.Equals("92a58340-5b5f-4f24-ee94-08da99ca0cbf")).ToList().FirstOrDefault();
-                if(testCategory is not null)
-                {
-                    if (pets.Categories.Count <= 0) new List<Categories>() { };
-                    pets.Categories.Add(testCategory);
-                }
+
                 try
                 {
                     _context.Update(pets);

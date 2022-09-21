@@ -54,10 +54,10 @@
                         <td>
                             <p><h1>OlA @item.Id</h1></p>
                             @*<input type="submit" value="@item.Name" class="btn btn-success input-bottom" />
-                            @Html.DisplayFor(modelItem => item)*@
+                    @Html.DisplayFor(modelItem => item)*@
                         </td>
                         <td>
-                            <input type="submit" value="Save Category to Pet" class="btn btn-success input-bottom" />
+                            <input type="submit" value="Test Save Category to Pet" class="btn btn-success input-bottom" />
                             <a asp-action="Edit" asp-route-id="@Model.Id" value="@Model.Id">Edit Test</a> |
                             <a asp-action="Details" asp-route-id="@item.Id" value="@item.Id">Details</a> |
                             <a asp-action="Delete" asp-route-id="@item.Id" value="@item.Id">Delete</a>
@@ -72,14 +72,23 @@
         </form>
 
         <form asp-controller="Pets" asp-action="AddCategoryToPet">
+            @*<form asp-controller="Pets" asp-action="AddCategoryToPet">*@
             <div class="form-group">
+                <p>You still think this animal isn't:</p>
                 @if (ViewBag.CategoriesWithNoPet is not null)
-                    {<p>You still think this animal isn't:</p>}
+                {
                     @foreach (var item in @ViewBag.CategoriesWithNoPet)
                     {
                         <input type="submit" value="@item.Name" class="btn btn-primary input-bottom input-bottom" />
-                        <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
+                        <input type="hidden" value="@item" asp-for="@Model.Categories" />
+                        <input type="hidden" value="@item.Id" asp-for="@item" />
+
+                        @*<a asp-action="AddCategoryToPet" asp-route-pets="@Model" value="@Model">+</a>*@
+                        <input type="hidden" value="@Model" asp-for="@item" />
+                        <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
+
                     }
+                }
             </div>
         </form>
 
