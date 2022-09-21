@@ -64,7 +64,7 @@ namespace PetsProject.Controllers
         }
 
         [HttpPost]
-        public void AddCategoryToPet([Bind("Id, PetId, CategoryId")] PetsCategories petsCategories)
+        public void AddCategoryToPet([Bind("Id, PetId, CategoryId")] PetsCategories petsCategories, Pets pets)
         {
             var test = petsCategories;
             Console.WriteLine("ok");

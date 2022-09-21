@@ -24,6 +24,39 @@
             <input type="hidden" asp-for="@Model.Base64Image" />
             <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <p>You still think this animal isn't:</p>
+                @if (ViewBag.CategoriesWithNoPet is not null)
+                {
+
+                    @for (int i = 0; i < Model.Categories.Count; i++)
+                    {
+                        var categoriesExcluded = Model.Categories.Except(Model.Categories.ToList());
+                        var selectedCategories = Model.SelectedCategories.Where(x => x.CategoryId.Equals(Model.Categories[i])).ToList();
+                        if (Model.SelectedCategories.Where(x => x.CategoryId.Equals(Model.Categories[i])).Any())
+                        {
+                            @*if(selectedCategories.Contains(Model.Categories[i]))*@
+                            <input title="X" buba="car" formaction="AddCategoryToPet?categoryId=@Model.Categories[i].Id" type="submit" value="selectedCategories[i].Categories.Name" class="btn btn-primary input-bottom" />
+                            <input type="hidden" value="@selectedCategories[i].Id" asp-for="@Model.Categories[i].Id" />
+                            <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
+                        }
+                    }
+
+                    @foreach (var item in @ViewBag.CategoriesWithNoPet)
+                    {
+                        <input formaction="AddCategoryToPet?categoryId=@item.Id" type="submit" value="@item.Name" class="btn btn-primary input-bottom" />
+                        <input type="hidden" asp-for="@Model.Categories" />
+                        <input type="hidden" asp-for="@item" />
+
+                        @*<a asp-action="AddCategoryToPet" asp-route-pets="@Model" value="@Model">+</a>*@
+                        <input type="hidden" value="@Model" asp-for="@item" />
+                        <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
+
+                    }
+                }
+            </div>
+
         </form>
         <form asp-controller="Categories" asp-action="Create">
             <Button asp-controller="Pets" asp-action="PetCategories" value="">Test</Button>
@@ -42,7 +75,7 @@
             <h1>You think this animal is: </h1>
             @if (ViewBag.PetCategoriesSaved is not null)
             {
-                @foreach (var item in @ViewBag.PetCategoriesSaved)
+                @foreach (var item in Model.Categories)
                 {
                     //this div needs to encapsulate the foreach so the buttons stay side by side
                     <div class="form-group">
@@ -71,25 +104,9 @@
 
         </form>
 
-        <form asp-controller="Pets" asp-action="AddCategoryToPet">
+        <form asp-controller="Pets" asp-action="porcariaqlq">
             @*<form asp-controller="Pets" asp-action="AddCategoryToPet">*@
-            <div class="form-group">
-                <p>You still think this animal isn't:</p>
-                @if (ViewBag.CategoriesWithNoPet is not null)
-                {
-                    @foreach (var item in @ViewBag.CategoriesWithNoPet)
-                    {
-                        <input type="submit" value="@item.Name" class="btn btn-primary input-bottom input-bottom" />
-                        <input type="hidden" value="@item" asp-for="@Model.Categories" />
-                        <input type="hidden" value="@item.Id" asp-for="@item" />
 
-                        @*<a asp-action="AddCategoryToPet" asp-route-pets="@Model" value="@Model">+</a>*@
-                        <input type="hidden" value="@Model" asp-for="@item" />
-                        <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
-
-                    }
-                }
-            </div>
         </form>
 
     </div>

@@ -28,11 +28,13 @@ namespace PetsProject.Controllers
         // GET: Pets
         public async Task<IActionResult> Index()
         {
+            Pets resultPet = await Base64ImageToPetModel();
             //line below just testing
+            resultPet.Categories = _context.Categories.ToList();
+            resultPet.SelectedCategories = _context.PetsCategories.Where(x => x.PetId.Equals(resultPet.Id)).ToList();
             ViewBag.Categories = _context.Categories;
             ViewBag.Pets = _context.Pets;
             ViewBag.CategoriesWithNoPet = _context.Categories;
-            Pets resultPet = await Base64ImageToPetModel();
 
             var exists = ImageWasSaved(resultPet.Id);
             if (exists)
@@ -45,25 +47,6 @@ namespace PetsProject.Controllers
             //return View(await _context.Pets.ToListAsync());
         }
 
-
-
-        // GET: Pets/Details/5
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null || _context.Pets == null)
-            {
-                return NotFound();
-            }
-
-            var pets = await _context.Pets
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (pets == null)
-            {
-                return NotFound();
-            }
-
-            return View(pets);
-        }
 
         // Get categories associated with pet image
         public async Task<IActionResult> PetCategories(Guid petId)
@@ -113,42 +96,6 @@ namespace PetsProject.Controllers
             ViewBag.CategoriesWithNoPet = categoriesExcluded;
         }
 
-        // DELETE after setting it right
-        public async Task<Pets> PetCategoriesDeleteThis(Guid petId)
-        {
-            ViewBag.Categories = _context.Categories;
-            ViewBag.Pets = _context.Pets;
-
-            //Need to put this into viewmodel
-            var foundPets = new Pets();
-            var categoriesModel = new Categories();
-            var petsCategoriesModel = new PetsCategories();
-
-            //pets.
-            var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
-            foreach (PetsCategories item in categories)
-            {
-                foundPets = await _context.Pets.Where(p => p.Id.Equals(item.PetId)).FirstOrDefaultAsync();
-                petsCategoriesModel.Pets = item.Pets;
-                petsCategoriesModel.PetId = item.PetId;
-
-                categoriesModel = await _context.Categories.Where(c => c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync();
-                //categoriesModel.Name = foundCategories.Name;
-                categoriesModel.Id = item.Categories.Id;
-                //petsCategoriesModel.Categories = foundCategories;
-                petsCategoriesModel.CategoryId = item.CategoryId;
-
-                foundPets.Categories.Add(categoriesModel);
-            }
-            if (foundPets.Categories.Count > 0)
-            {
-                //Trying to solve this viewbag in order to show categories that are associated
-                ViewBag.PetCategoriesSaved = foundPets.Categories;
-            }
-
-            return await Task.FromResult(petsCategoriesModel.Pets);
-
-        }
 
         // GET: Pets/Create
         public IActionResult Create()
@@ -174,18 +121,18 @@ namespace PetsProject.Controllers
         {
             //var pet = await _context.Pets.FindAsync(id);
             //pets.Base64Image = pet.Base64Image;
-            var testCategory = _context.Categories.Find(Guid.Parse("92a58340-5b5f-4f24-ee94-08da99ca0cbf"));
-            if (testCategory is not null)
+            var categories = _context.PetsCategories.Where(p => p.PetId.Equals(pets.Id));
+            var petsCategories = new PetsCategories()
             {
-                if (pets.Categories.Count <= 0) new List<Categories>() { };
-                pets.Categories.Add(testCategory);
-            }
+                PetId = pets.Id,
+                CategoryId = categoryId,
+            };
+            _context.Add(petsCategories);
+            await _context.SaveChangesAsync();
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id");
-            ViewData["PetId"] = new SelectList(_context.Pets, "Id", "Id");
-            var test = pets.Categories;
-            Console.WriteLine("ok");
-            return View(test);
+
+            return RedirectToAction("PetCategories", "Pets", pets);
+            //return RedirectToAction(nameof(Index), pets);
         }
 
         // GET: Pets/Edit/5
