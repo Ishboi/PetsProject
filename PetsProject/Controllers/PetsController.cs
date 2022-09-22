@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using PetsProject.Data;
 using PetsProject.Models;
 using PetsProject.Controllers;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace PetsProject.Controllers
 {
@@ -65,26 +66,29 @@ namespace PetsProject.Controllers
             var petsCategoriesModel = new PetsCategories();
 
             var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
+            foundPets = await _context.Pets.Where(p => p.Id.Equals(petId)).FirstOrDefaultAsync();
             if (!categories.Any())
             {
-                foundPets = await _context.Pets.Where(p => p.Id.Equals(petId)).FirstOrDefaultAsync();
                 petsCategoriesModel.Pets = foundPets;
             }
-
-            foreach (PetsCategories item in categories)
+            if(foundPets is not null)
             {
-                foundPets = await _context.Pets.Where(p => p.Id.Equals(item.PetId)).FirstOrDefaultAsync();
-                petsCategoriesModel.Pets = item.Pets;
-                petsCategoriesModel.PetId = item.PetId;
-
-                categoriesModel = await _context.Categories.Where(c => c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync();
-                if (categoriesModel is not null && foundPets is not null)
+                foreach (PetsCategories item in categories)
                 {
+                    foundPets = await _context.Pets.Where(p => p.Id.Equals(item.PetId)).FirstOrDefaultAsync();
+                    petsCategoriesModel.Pets = item.Pets;
+                    petsCategoriesModel.PetId = item.PetId;
 
-                    categoriesModel.Id = item.Categories.Id;
-                    petsCategoriesModel.CategoryId = item.CategoryId;
+                    categoriesModel = await _context.Categories.Where(c => c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync();
+                    if (categoriesModel is not null && foundPets is not null)
+                    {
 
-                    foundPets.Categories.Add(categoriesModel);
+                        categoriesModel.Id = item.Categories.Id;
+                        petsCategoriesModel.CategoryId = item.CategoryId;
+
+                        foundPets.Categories.Add(categoriesModel);
+                    }
+
                 }
 
             }
@@ -129,9 +133,6 @@ namespace PetsProject.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCategoryToPet(Guid petId, Guid categoryId, Pets pets)
         {
-            //var pet = await _context.Pets.FindAsync(id);
-            //pets.Base64Image = pet.Base64Image;
-            var categories = _context.PetsCategories.Where(p => p.PetId.Equals(pets.Id));
             var petsCategories = new PetsCategories()
             {
                 PetId = pets.Id,
@@ -140,9 +141,30 @@ namespace PetsProject.Controllers
             _context.Add(petsCategories);
             await _context.SaveChangesAsync();
 
-
-            return RedirectToAction("PetCategories", "Pets", pets);
+            return Redirect($"PetCategories?petId={petId}");
+            return RedirectToAction(nameof(Index));
+            //return RedirectToAction("Index", "Pets", pets.Id);
             //return RedirectToAction(nameof(Index), pets);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteCategoryFromPet(Guid petId, Guid categoryId)
+        {
+            if(_context.PetsCategories is null)
+            {
+                return Problem("Currently no Categories associated to any pets.");
+            }
+            var petsCategories = await _context.PetsCategories.Where(x => (x.PetId.Equals(petId) &&
+                         (x.CategoryId.Equals(categoryId)))).FirstOrDefaultAsync();
+            if(petsCategories != null)
+            {
+                _context.PetsCategories.Remove(petsCategories);
+            }
+            await _context.SaveChangesAsync();
+            return Redirect($"PetCategories?petId={petId}");
+            return RedirectToAction(nameof(Index));
+                
+
         }
 
         // GET: Pets/Edit/5
@@ -312,5 +334,6 @@ namespace PetsProject.Controllers
 
             return Convert.ToBase64String(bytes);
         }
+
     }
 }

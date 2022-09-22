@@ -17,7 +17,8 @@
 
         <form asp-controller="Pets" asp-action="Create">
             <div class="form-group">
-                <input formaction="Index" type="button" value="Next" class="btn btn-primary input-bottom" onclick="location.href'@Url.Action("Index","Pets")'"/>
+                <input type="button" value="Next" class="btn btn-primary input-bottom" onclick="@("window.location.href='" + @Url.Action("Index", "Pets") + "'");" />
+                @*<input formaction="Index" type="button" value="Next" class="btn btn-primary input-bottom" onclick="(location.reload)"/>*@
                 <input type="submit" value="Save" class="btn btn-success input-bottom" />
             </div>
             <img src="data:image/png;base64,@Model.Base64Image" alt="Animal Image" class="input-bottom" />
@@ -26,22 +27,38 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
+
+                @if (Model.Categories.Count > 0)
+                {
+                    <h1>You think this animal is: </h1>
+                    @foreach (var item in Model.Categories)
+                    {
+                        //this div needs to encapsulate the foreach so the buttons stay side by side
+                        <input formaction="DeleteCategoryFromPet?petId=@Model.Id&categoryId=@item.Id" type="submit" value="@item.Name" class="btn btn-success input-bottom" />
+                        <input type="hidden" value="@item.Id" asp-for="@Model.Categories" />
+                        <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
+                    }
+
+                }
+
+
+
                 @if (ViewBag.CategoriesWithNoPet is not null)
                 {
                     <p>You still think this animal isn't':</p>
 
-                    @for (int i = 0; i < Model.Categories.Count; i++)
-                    {
-                        var categoriesExcluded = Model.Categories.Except(Model.Categories.ToList());
-                        var selectedCategories = Model.SelectedCategories.Where(x => x.CategoryId.Equals(Model.Categories[i])).ToList();
-                        if (Model.SelectedCategories.Where(x => x.CategoryId.Equals(Model.Categories[i])).Any())
-                        {
-                            @*if(selectedCategories.Contains(Model.Categories[i]))*@
-                            <input title="X" formaction="AddCategoryToPet?categoryId=@Model.Categories[i].Id" type="submit" value="selectedCategories[i].Categories.Name" class="btn btn-primary input-bottom" />
-                            <input type="hidden" value="@selectedCategories[i].Id" asp-for="@Model.Categories[i].Id" />
-                            <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
-                        }
-                    }
+                    @*                    @for (int i = 0; i < Model.Categories.Count; i++)
+                {
+                var categoriesExcluded = Model.Categories.Except(Model.Categories.ToList());
+                var selectedCategories = Model.SelectedCategories.Where(x => x.CategoryId.Equals(Model.Categories[i])).ToList();
+                if (Model.SelectedCategories.Where(x => x.CategoryId.Equals(Model.Categories[i])).Any())
+                {
+                @*if(selectedCategories.Contains(Model.Categories[i]))*@@*
+                <input title="X" formaction="AddCategoryToPet?categoryId=@Model.Categories[i].Id" type="submit" value="selectedCategories[i].Categories.Name" class="btn btn-primary input-bottom" />
+                <input type="hidden" value="@selectedCategories[i].Id" asp-for="@Model.Categories[i].Id" />
+                <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
+                }
+                }*@
 
                     @foreach (var item in @ViewBag.CategoriesWithNoPet)
                     {
@@ -72,11 +89,11 @@
 
         @*Need to change asp-action for a method that deletes the category from pets*@
         <form asp-controller="Pets" asp-action="Edit">
-            
+
             @*@if (ViewBag.PetCategoriesSaved is not null)*@
             @if (Model.Categories.Count > 0)
             {
-                <h1>You think this animal is: </h1>
+                <h1>OLD Version > You think this animal is: </h1>
                 @foreach (var item in Model.Categories)
                 {
                     //this div needs to encapsulate the foreach so the buttons stay side by side
@@ -144,23 +161,24 @@
 
         @* Testing *@
         <form asp-controller="Categories" asp-action="Create">
-            <h1>Last Saved</h1>
-            @foreach (var item in ViewBag.Pets)
-            {
+            <h1>
+                History/h1>
+                @foreach (var item in ViewBag.Pets)
+                {
             <tr>
                 <td>
                     <p><h1>@item.Id</h1></p>
                     <img src="data:image/png;base64,@item.Base64Image" alt="Animal Image" class="input-bottom" height="150px" />
-                        @*@Html.DisplayFor(modelItem => item)*@
+                            @*@Html.DisplayFor(modelItem => item)*@
                 </td>
                 <td>
-                    <a asp-action="PetCategories" asp-route-petId="@item.Id" value="@item.Id">Edit</a> |
+                    <a asp-action="PetCategories" asp-route-petId="@item.Id" value="@item.Id">Add Categories to Pet</a> |
                     <a asp-action="Details" asp-route-id="@item.Id" value="@item.Id">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.Id" value="@item.Id">Delete</a>
                     <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
                 </td>
             </tr>
-            }
+                }
         </form>
 
         <hr />
