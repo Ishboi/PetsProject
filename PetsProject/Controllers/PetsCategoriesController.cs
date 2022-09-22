@@ -88,8 +88,6 @@ namespace PetsProject.Controllers
         }
 
         // POST: PetsCategories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id")] PetsCategories petsCategories)
@@ -164,6 +162,7 @@ namespace PetsProject.Controllers
           return _context.PetsCategories.Any(e => e.Id == id);
         }
 
+        /* Needs to be optimized, filter should be in here
         public async Task<IActionResult> FilterBy(int id)
         {
             if(id == null || _context.PetsCategories == null)
@@ -181,5 +180,7 @@ namespace PetsProject.Controllers
             }
             return View(petsCategories);
         }
+
+        */
     }
 }
