@@ -29,7 +29,7 @@ namespace PetsProject.Controllers
         // GET: Pets
         public async Task<IActionResult> Index()
         {
-            Pets resultPet = await Base64ImageToPetModel();
+                Pets resultPet = await Base64ImageToPetModel();
             //line below just testing
             resultPet.Categories = _context.Categories.ToList();
             resultPet.SelectedCategories = _context.PetsCategories.Where(x => x.PetId.Equals(resultPet.Id)).ToList();
@@ -66,6 +66,7 @@ namespace PetsProject.Controllers
             var petsCategoriesModel = new PetsCategories();
 
             var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
+            ViewBag.CategoriesWithPets = categories;
             foundPets = await _context.Pets.Where(p => p.Id.Equals(petId)).FirstOrDefaultAsync();
             if (!categories.Any())
             {
@@ -123,6 +124,7 @@ namespace PetsProject.Controllers
         //public async Task<IActionResult> Create([Bind("Id,Base64Image")] Pets pets)
         public async Task<IActionResult> Create(Pets pets)
         {
+            if(ImageWasSaved(pets.Id)) return RedirectToAction(nameof(Index));
             _context.Add(pets);
 
             await _context.SaveChangesAsync();
@@ -131,18 +133,20 @@ namespace PetsProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCategoryToPet(Guid petId, Guid categoryId, Pets pets)
+        public async Task<IActionResult> AddCategoryToPet(Guid petId, Guid categoryId)
         {
             var petsCategories = new PetsCategories()
             {
-                PetId = pets.Id,
+                PetId = petId,
                 CategoryId = categoryId,
             };
             _context.Add(petsCategories);
             await _context.SaveChangesAsync();
+            var pet = _context.Pets.Find(petId);
 
-            return Redirect($"PetCategories?petId={petId}");
             return RedirectToAction(nameof(Index));
+            //Trying to found a better way for this
+            //return Redirect($"PetCategories?petId={petId}"); //Doesn't reload, so the buttons aren't responsive to db changes
             //return RedirectToAction("Index", "Pets", pets.Id);
             //return RedirectToAction(nameof(Index), pets);
         }

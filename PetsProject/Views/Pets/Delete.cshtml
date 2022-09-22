@@ -12,11 +12,8 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Base64Image)
+            <img src="data:image/png;base64,@Model.Base64Image" alt="Animal Image" class="input-bottom" />
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Base64Image)
-        </dd>
     </dl>
     
     <form asp-action="Delete">
