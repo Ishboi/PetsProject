@@ -29,7 +29,7 @@ namespace PetsProject.Controllers
         // GET: Pets
         public async Task<IActionResult> Index()
         {
-                Pets resultPet = await Base64ImageToPetModel();
+            Pets resultPet = await Base64ImageToPetModel();
             //line below just testing
             resultPet.Categories = _context.Categories.ToList();
             resultPet.SelectedCategories = _context.PetsCategories.Where(x => x.PetId.Equals(resultPet.Id)).ToList();
@@ -41,22 +41,20 @@ namespace PetsProject.Controllers
             if (exists)
             {
                 //If saved pet image doesn't doesn't have any category yet return model to View
-                if(!_context.PetsCategories.Where(p => p.PetId.Equals(resultPet.Id)).Any())
+                if (!_context.PetsCategories.Where(p => p.PetId.Equals(resultPet.Id)).Any())
                 {
                     return View(resultPet);
                 }
                 ViewBag.CategoriesAssociated = PetCategories(resultPet.Id);
-                //ViewBag.CategoriesAssociated = PetCategories(Guid.Parse("15bed543-68bc-4b90-bcb8-1511f3d479d0"));
             }
 
             return View(resultPet);
-            //return View(await _context.Pets.ToListAsync());
         }
 
 
         // Get categories associated with pet image
         public async Task<IActionResult> PetCategories(Guid petId)
-            {
+        {
             ViewBag.Categories = _context.Categories;
             ViewBag.Pets = _context.Pets;
 
@@ -72,7 +70,7 @@ namespace PetsProject.Controllers
             {
                 petsCategoriesModel.Pets = foundPets;
             }
-            if(foundPets is not null)
+            if (foundPets is not null)
             {
                 foreach (PetsCategories item in categories)
                 {
@@ -116,13 +114,13 @@ namespace PetsProject.Controllers
             var categories = _context.Categories.Where(c => c.Id.Equals(categoryId)).ToList();
             ViewBag.CategoryFiltered = categories[0].Name;
 
-            var petCategories = _context.PetsCategories.Where(pc => pc.CategoryId.Equals(categoryId)).ToList();
+            var petCategories = await _context.PetsCategories.Where(pc => pc.CategoryId.Equals(categoryId)).ToListAsync();
             if (!categories.Any() || !petCategories.Any())
             {
                 return NotFound();
             }
             var pets = new List<Pets>();
-            foreach(var item in petCategories)
+            foreach (var item in petCategories)
             {
                 pets.Add(_context?.Pets.Find(item.PetId));
             }
@@ -149,7 +147,7 @@ namespace PetsProject.Controllers
         //public async Task<IActionResult> Create([Bind("Id,Base64Image")] Pets pets)
         public async Task<IActionResult> Create(Pets pets)
         {
-            if(ImageWasSaved(pets.Base64Image)) return RedirectToAction(nameof(Index));
+            if (ImageWasSaved(pets.Base64Image)) return RedirectToAction(nameof(Index));
             _context.Add(pets);
 
             await _context.SaveChangesAsync();
@@ -170,8 +168,8 @@ namespace PetsProject.Controllers
             var pet = _context.Pets.Find(petId);
 
             return RedirectToAction(nameof(Index));
-            //Trying to found a better way for this
-            //return Redirect($"PetCategories?petId={petId}"); //Doesn't reload, so the buttons aren't responsive to db changes
+
+            //return Redirect($"PetCategories?petId={petId}"); //Doesn't reload page once it's redirected, so the buttons aren't responsive to db changes
             //return RedirectToAction("Index", "Pets", pets.Id);
             //return RedirectToAction(nameof(Index), pets);
         }
@@ -179,20 +177,19 @@ namespace PetsProject.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteCategoryFromPet(Guid petId, Guid categoryId)
         {
-            if(_context.PetsCategories is null)
+            if (_context.PetsCategories is null)
             {
                 return Problem("Currently no Categories associated to any pets.");
             }
             var petsCategories = await _context.PetsCategories.Where(x => (x.PetId.Equals(petId) &&
                          (x.CategoryId.Equals(categoryId)))).FirstOrDefaultAsync();
-            if(petsCategories != null)
+            if (petsCategories != null)
             {
                 _context.PetsCategories.Remove(petsCategories);
             }
             await _context.SaveChangesAsync();
             return Redirect($"PetCategories?petId={petId}");
-            return RedirectToAction(nameof(Index));
-                
+
 
         }
 
@@ -222,56 +219,25 @@ namespace PetsProject.Controllers
                 return NotFound();
             }
 
-            //if (ModelState.IsValid)
-            if(true)
+
+            try
             {
-
-                try
-                {
-                    _context.Update(pets);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PetsExists(pets.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(pets);
+                await _context.SaveChangesAsync();
             }
-            return View(pets);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PetsExists(pets.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
-
-        /* Testing
-        //Edit Category
-        public async Task<IActionResult> EditCategory(Guid categoryId,Pets pets)
-        {
-            var category = await _context.Categories.FindAsync(categoryId);
-
-            return View(category);
-
-        }
-
-        //Delete Category
-        public async void DeleteCategory(Guid? id)
-        {
-            var category = new CategoriesController(_context);
-            await category.Delete(id);
-        }
-
-        //Details Category
-        public async void CategoryDetails(Guid? id)
-        {
-            var category = new CategoriesController(_context);
-            await category.Details(id);
-        }
-        */
-
 
         // GET: Pets/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
