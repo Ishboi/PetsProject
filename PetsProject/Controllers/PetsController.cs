@@ -117,7 +117,7 @@ namespace PetsProject.Controllers
             var petCategories = await _context.PetsCategories.Where(pc => pc.CategoryId.Equals(categoryId)).ToListAsync();
             if (!categories.Any() || !petCategories.Any())
             {
-                return NotFound();
+                return NotFound("Category isn't associated with any pet");
             }
             var pets = new List<Pets>();
             foreach (var item in petCategories)
