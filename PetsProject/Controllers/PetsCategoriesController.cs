@@ -163,5 +163,23 @@ namespace PetsProject.Controllers
         {
           return _context.PetsCategories.Any(e => e.Id == id);
         }
+
+        public async Task<IActionResult> FilterBy(int id)
+        {
+            if(id == null || _context.PetsCategories == null)
+            {
+                return NotFound();
+            }
+
+            var petsCategories = await _context.PetsCategories
+                .Include(c => c.Categories)
+                .Include(p => p.Pets)
+                .Where(pc => pc.Id == id).ToListAsync();
+            if(petsCategories is null)
+            {
+                return NotFound();
+            }
+            return View(petsCategories);
+        }
     }
 }

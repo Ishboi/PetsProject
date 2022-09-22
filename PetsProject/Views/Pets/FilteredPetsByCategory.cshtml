@@ -1,0 +1,31 @@
+﻿@model IEnumerable<PetsProject.Models.Pets>
+
+@{
+    ViewData["Title"] = "rate_my_animal.com";
+}
+
+<h1>Filtered by "@ViewBag.CategoryFiltered category</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Results:
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                <img src="data:image/png;base64,@item.Base64Image" alt="Animal Image" class="input-bottom" />
+                <input type="hidden" asp-for="@item.Base64Image" />
+                <input type="hidden" value="@item.Id" asp-for="@item.Id" />
+
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

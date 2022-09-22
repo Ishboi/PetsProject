@@ -37,7 +37,7 @@ namespace PetsProject.Controllers
             ViewBag.Pets = _context.Pets;
             ViewBag.CategoriesWithNoPet = _context.Categories;
 
-            var exists = ImageWasSaved(resultPet.Id);
+            var exists = ImageWasSaved(resultPet.Base64Image);
             if (exists)
             {
                 //If saved pet image doesn't doesn't have any category yet return model to View
@@ -111,6 +111,31 @@ namespace PetsProject.Controllers
             ViewBag.CategoriesWithNoPet = categoriesExcluded;
         }
 
+        public async Task<IActionResult> FilterByCategory(Guid petId, Guid categoryId, string petCategoryId)
+        {
+            var categories = _context.Categories.Where(c => c.Id.Equals(categoryId)).ToList();
+            ViewBag.CategoryFiltered = categories[0].Name;
+
+            var petCategories = _context.PetsCategories.Where(pc => pc.CategoryId.Equals(categoryId)).ToList();
+            if (!categories.Any() || !petCategories.Any())
+            {
+                return NotFound();
+            }
+            var pets = new List<Pets>();
+            foreach(var item in petCategories)
+            {
+                pets.Add(_context?.Pets.Find(item.PetId));
+            }
+
+            foreach (var item in pets)
+            {
+                Console.WriteLine($"Pet id is:{item.Id}");
+            }
+
+
+            return View("FilteredPetsByCategory", pets);
+        }
+
 
         // GET: Pets/Create
         public IActionResult Create()
@@ -124,7 +149,7 @@ namespace PetsProject.Controllers
         //public async Task<IActionResult> Create([Bind("Id,Base64Image")] Pets pets)
         public async Task<IActionResult> Create(Pets pets)
         {
-            if(ImageWasSaved(pets.Id)) return RedirectToAction(nameof(Index));
+            if(ImageWasSaved(pets.Base64Image)) return RedirectToAction(nameof(Index));
             _context.Add(pets);
 
             await _context.SaveChangesAsync();
@@ -291,9 +316,9 @@ namespace PetsProject.Controllers
         }
 
         //Checks if image has already been saved by the user
-        public Boolean ImageWasSaved(Guid id)
+        public Boolean ImageWasSaved(string base64Image)
         {
-            var anyPets = _context.Pets.Where(p => p.Id.Equals(id));
+            var anyPets = _context.Pets.Where(p => p.Base64Image.Equals(base64Image));
             return anyPets.Count() > 0;
         }
 

@@ -6,7 +6,7 @@
 @Html.HiddenFor(item => item.Base64Image)
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "rate_my_animal.com";
 
 }
 
@@ -76,6 +76,7 @@
             </div>
 
         </form>
+
         <form asp-controller="Categories" asp-action="Create">
             <Button asp-controller="Categories" asp-action="Create" value="" class="btn btn-secondary">Create Category</Button>
         </form>
@@ -147,6 +148,10 @@
             <tr>
                 <td>
                     <h1>@item.Name</h1>
+
+                    <a asp-controller="Pets" asp-action="FilterByCategory" asp-route-categoryId="@item.Id" asp-route-petId="@Model.Id">Filter by this category</a> |
+
+                    <a asp-controller="Categories" asp-action="Index" asp-route-id="@item.Id">List All</a> |
                     <a asp-controller="Categories" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-controller="Categories" asp-action="Details" asp-route-id="@item.Id" type="hidden">Details</a> |
                     <a asp-controller="Categories" asp-action="Delete" asp-route-id="@item.Id" type="hidden">Delete</a>
