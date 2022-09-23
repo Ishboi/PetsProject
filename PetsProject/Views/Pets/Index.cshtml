@@ -2,6 +2,8 @@
 @using PetsProject.Models;
 
 @model PetsProject.Models.Pets
+@Html.HiddenFor(item => item.Id)
+@Html.HiddenFor(item => item.Base64Image)
 
 @{
     ViewData["Title"] = "rate_my_animal.com";
@@ -16,44 +18,48 @@
         <form asp-controller="Pets" asp-action="Create">
             <div class="form-group">
                 <input type="button" value="Next" class="btn btn-primary input-bottom" onclick="@("window.location.href='" + @Url.Action("Index", "Pets") + "'");" />
+                @*<input formaction="Index" type="button" value="Next" class="btn btn-primary input-bottom" onclick="(location.reload)"/>*@
                 <input type="submit" value="Save" class="btn btn-success input-bottom" />
-
+                
             </div>
             <img src="data:image/png;base64,@Model.Base64Image" alt="Animal Image" class="input-bottom" />
-            @*Hiddens*@
             <input type="hidden" asp-for="@Model.Base64Image" />
-            <input type="hidden" asp-for="@Model.Id" />
+            <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                @if (Model.Categories is not null)
+
+                @if (ViewBag.CategoriesWithPetAssociated is not null)
                 {
-                    @for (int categoryIndex = 0; categoryIndex < Model.Categories.Count(); categoryIndex++)
+                    <h1>You think this animal is: </h1>
+                    @foreach (var item in Model.Categories)
                     {
-                        //All Categories
-                        var selectedCategoryIndex = 0;
-                        <input type="hidden" asp-for="@Model.Categories[categoryIndex].Id" />
-                        <input type="hidden" asp-for="@Model.Categories[categoryIndex].Name" />
-
-                        var currentCategory = Model.Categories[categoryIndex];
-                        bool selectCategory = Model.SelectedCategories.FirstOrDefault(x => x.CategoryId.Equals(currentCategory.Id)) != null;
-
-                        if (selectCategory)
-                        {
-                            <input formaction="DeleteCategoryFromPet?petId=@Model.Id&categoryId=@currentCategory.Id" type="submit" value="@Model.Categories[categoryIndex].Name" class="btn btn-success input-bottom" />
-                        }
-                        else
-                        {
-                            <input asp-action="AddCategoryToPet" asp-route-categoryId="@currentCategory.Id" asp-route-petId="@Model.Id" type="submit" value="@currentCategory.Name" class="btn btn-primary input-bottom"/>
-                            Model.SelectedCategories.Add(new PetsCategories());
-                            <input type="hidden" asp-for="@Model.SelectedCategories[selectedCategoryIndex].Id" />
-                            selectedCategoryIndex++;
-
-                        }
-
-
+                        //this div needs to encapsulate the foreach so the buttons stay side by side
+                        <input formaction="DeleteCategoryFromPet?petId=@Model.Id&categoryId=@item.Id" type="submit" value="@item.Name" class="btn btn-success input-bottom" />
+                        <input type="hidden" value="@item.Id" asp-for="@Model.Categories" />
+                        <input type="hidden" value="@item.Id" asp-for="@Model.Id" />
                     }
 
+                }
+
+
+
+                @if (ViewBag.CategoriesWithNoPet is not null)
+                {
+                    <p>You still think this animal isn't':</p>
+
+                    @foreach (var item in @ViewBag.CategoriesWithNoPet)
+                    {
+                        <input asp-action="AddCategoryToPet" asp-route-categoryId="@item.Id" asp-route-petId="@Model.Id" type="submit" value="@item.Name" class="btn btn-primary input-bottom" />
+                        @*<input formaction="AddCategoryToPet?categoryId=@item.Id&petId=@Model.Id" type="submit" value="@item.Name" class="btn btn-primary input-bottom" />*@
+                        <input type="hidden" asp-for="@Model.Categories" />
+                        <input type="hidden" asp-for="@item" />
+
+                        @*<a asp-action="AddCategoryToPet" asp-route-pets="@Model" value="@Model">+</a>*@
+                        <input type="hidden" value="@Model" asp-for="@item" />
+                        <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
+
+                    }
                 }
             </div>
 
@@ -70,17 +76,23 @@
 
 <div class="row">
     <div class="col-md-4">
+        <form asp-controller="Pets" asp-action="FilterByCategory">
             <h1>Filter by:</h1>
-            @foreach (var item in Model.Categories)
+            @foreach (var item in ViewBag.ExistingPetsCategories)
             {
                 <a asp-controller="Pets" asp-action="FilterByCategory" asp-route-categoryId="@item.Id" asp-route-petId="@Model.Id">@item.Name</a>
+@*                <a asp-controller="Categories" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                <a asp-controller="Categories" asp-action="Details" asp-route-id="@item.Id" type="hidden">Details</a>
+                <a asp-controller="Categories" asp-action="Delete" asp-route-id="@item.Id" type="hidden">Delete</a>*@
 
             }
 
 
+        </form>
     </div>
 </div>
 
+@*Leaving it for later*@
 <table class="table">
     <thead>
         <tr>
