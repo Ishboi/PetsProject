@@ -33,7 +33,7 @@ namespace PetsProject.Controllers
             Pets resultPet = await Base64ImageToPetModel();
             //line below just testing
             resultPet.Categories = _context.Categories.ToList();
-            resultPet.SelectedCategories = _context.PetsCategories.Where(pc =>pc.PetId.Equals(resultPet.Id)).ToList();
+            resultPet.SelectedCategories = _context.PetsCategories.Where(x => x.PetId.Equals(resultPet.Id)).ToList();
             ViewBag.Categories = _context.Categories;
             ViewBag.Pets = _context.Pets;
             ViewBag.CategoriesWithNoPet = _context.Categories;
@@ -44,7 +44,7 @@ namespace PetsProject.Controllers
             if (exists is not null)
             {
                 //If saved pet image doesn't doesn't have any category yet return model to View
-                if (!resultPet.SelectedCategories.Any())
+                if (!_context.PetsCategories.Where(p => p.PetId.Equals(resultPet.Id)).Any())
                 {
                     return View(resultPet);
                 }
@@ -55,7 +55,7 @@ namespace PetsProject.Controllers
         }
 
 
-        public void CategoriesAlreadyAssociatedWithPets()
+        public async void CategoriesAlreadyAssociatedWithPets()
         {
             var existingPets = _context.Pets.ToList();
             var existingCategories = _context.Categories.ToList();
