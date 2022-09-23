@@ -50,7 +50,8 @@
 
                     @foreach (var item in @ViewBag.CategoriesWithNoPet)
                     {
-                        <input formaction="AddCategoryToPet?categoryId=@item.Id&petId=@Model.Id" type="submit" value="@item.Name" class="btn btn-primary input-bottom" />
+                        <input asp-action="AddCategoryToPet" asp-route-categoryId="@item.Id" asp-route-petId="@Model.Id" type="submit" value="@item.Name" class="btn btn-primary input-bottom" />
+                        @*<input formaction="AddCategoryToPet?categoryId=@item.Id&petId=@Model.Id" type="submit" value="@item.Name" class="btn btn-primary input-bottom" />*@
                         <input type="hidden" asp-for="@Model.Categories" />
                         <input type="hidden" asp-for="@item" />
 

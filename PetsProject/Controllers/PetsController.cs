@@ -39,8 +39,8 @@ namespace PetsProject.Controllers
 
             if (_context.PetsCategories is not null) CategoriesAlreadyAssociatedWithPets();
 
-            var exists = ImageWasSaved(resultPet.Base64Image);
-            if (exists)
+            var exists = ReturnPetIfImageWasSaved(resultPet.Base64Image);
+            if (exists is not null)
             {
                 //If saved pet image doesn't doesn't have any category yet return model to View
                 if (!_context.PetsCategories.Where(p => p.PetId.Equals(resultPet.Id)).Any())
@@ -179,7 +179,7 @@ namespace PetsProject.Controllers
         //public async Task<IActionResult> Create([Bind("Id,Base64Image")] Pets pets)
         public async Task<IActionResult> Create(Pets pets)
         {
-            if (ImageWasSaved(pets.Base64Image)) return RedirectToAction(nameof(Index));
+            if (ReturnPetIfImageWasSaved(pets.Base64Image) is not null) return RedirectToAction(nameof(Index));
             _context.Add(pets);
 
             await _context.SaveChangesAsync();
@@ -188,8 +188,18 @@ namespace PetsProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCategoryToPet(Guid petId, Guid categoryId)
+        public async Task<IActionResult> AddCategoryToPet(Guid petId, Guid categoryId, string base64Image)
         {
+            if (ReturnPetIfImageWasSaved(base64Image) is null)
+            {
+                var newPet = new Pets()
+                {
+                    Id = petId,
+                    Base64Image = base64Image
+                };
+                await Create(newPet);
+            }
+
             var petsCategories = new PetsCategories()
             {
                 PetId = petId,
@@ -310,18 +320,12 @@ namespace PetsProject.Controllers
         }
 
         //Checks if image has already been saved by the user
-        public Boolean ImageWasSaved(string base64Image)
+        public Pets ReturnPetIfImageWasSaved(string base64Image)
         {
-            var anyPets = _context.Pets.Where(p => p.Base64Image.Equals(base64Image));
-            return anyPets.Count() > 0;
+            if (_context.Pets is null) return null;
+            Pets? petSaved = _context.Pets.Where(p => p.Base64Image.Equals(base64Image)).FirstOrDefault();
+            return petSaved ?? null;
         }
-
-
-
-
-
-
-        //Send to helper class
 
 
         //Creates pet model based on base64 string and Guid
@@ -337,6 +341,12 @@ namespace PetsProject.Controllers
 
             //Conver to base64
             var imageBase64 = ConvertToBase64(imageStream);
+
+            var existingPet = ReturnPetIfImageWasSaved(imageBase64);
+            if (existingPet is not null)
+            {
+                return existingPet;
+            }
             var resultPet = new Pets()
             {
                 Id = Guid.NewGuid(),
