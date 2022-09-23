@@ -197,13 +197,9 @@ namespace PetsProject.Controllers
             };
             _context.Add(petsCategories);
             await _context.SaveChangesAsync();
-            var pet = _context.Pets.Find(petId);
 
-            return RedirectToAction(nameof(Index));
+            return Redirect($"PetCategories?petId={petId}");
 
-            //return Redirect($"PetCategories?petId={petId}"); //Doesn't reload page once it's redirected, so the buttons aren't responsive to db changes
-            //return RedirectToAction("Index", "Pets", pets.Id);
-            //return RedirectToAction(nameof(Index), pets);
         }
 
         [HttpPost]
