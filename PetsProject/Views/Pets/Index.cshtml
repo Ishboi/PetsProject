@@ -29,7 +29,7 @@
 
             <div class="form-group">
 
-                @if (ViewBag.CategoriesWithPets is not null)
+                @if (ViewBag.CategoriesWithPetAssociated is not null)
                 {
                     <h1>You think this animal is: </h1>
                     @foreach (var item in Model.Categories)
@@ -73,6 +73,24 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Pets" asp-action="FilterByCategory">
+            <h1>Filter by:</h1>
+            @foreach (var item in ViewBag.ExistingPetsCategories)
+            {
+                <a asp-controller="Pets" asp-action="FilterByCategory" asp-route-categoryId="@item.Id" asp-route-petId="@Model.Id">@item.Name</a>
+@*                <a asp-controller="Categories" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                <a asp-controller="Categories" asp-action="Details" asp-route-id="@item.Id" type="hidden">Details</a>
+                <a asp-controller="Categories" asp-action="Delete" asp-route-id="@item.Id" type="hidden">Delete</a>*@
+
+            }
+
+
+        </form>
+    </div>
+</div>
+
 @*Leaving it for later*@
 <table class="table">
     <thead>
@@ -90,8 +108,7 @@
             {
             <tr>
                 <td>
-                    <img src="data:image/png;base64,@item.Base64Image" alt="Animal Image" class="input-bottom" height="150px" />
-                        @*@Html.DisplayFor(modelItem => item)*@
+                    <img src="data:image/png;base64,@item.Base64Image" alt="Animal Image" class="input-bottom" height="150" />
                 </td>
                 <td>
                     <a asp-action="PetCategories" asp-route-petId="@item.Id" value="@item.Id">Change Categories for Pet</a> |
@@ -102,21 +119,6 @@
             }
 
         </form>
-        @foreach (var item in ViewBag.Categories)
-        {
-            @*<a asp-controller="Categories" asp-action="Index" asp-route-id="@item.Id">List All</a> |*@
-            <tr>
-                <td>
-                    <h1>@item.Name</h1>
-
-                    <a asp-controller="Pets" asp-action="FilterByCategory" asp-route-categoryId="@item.Id" asp-route-petId="@Model.Id">Filter by this category</a> |
-
-                    <a asp-controller="Categories" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-controller="Categories" asp-action="Details" asp-route-id="@item.Id" type="hidden">Details</a> |
-                    <a asp-controller="Categories" asp-action="Delete" asp-route-id="@item.Id" type="hidden">Delete</a>
-                </td>
-            </tr>
-        }
 
 
     </tbody>

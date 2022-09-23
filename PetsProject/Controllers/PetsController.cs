@@ -37,6 +37,8 @@ namespace PetsProject.Controllers
             ViewBag.Pets = _context.Pets;
             ViewBag.CategoriesWithNoPet = _context.Categories;
 
+            if (_context.PetsCategories is not null) CategoriesAlreadyAssociatedWithPets();
+
             var exists = ImageWasSaved(resultPet.Base64Image);
             if (exists)
             {
@@ -45,12 +47,37 @@ namespace PetsProject.Controllers
                 {
                     return View(resultPet);
                 }
-                ViewBag.CategoriesAssociated = PetCategories(resultPet.Id);
+                await PetCategories(resultPet.Id);
             }
 
             return View(resultPet);
         }
 
+
+        public async void CategoriesAlreadyAssociatedWithPets()
+        {
+            var existingPets = _context.Pets.ToList();
+            var existingCategories = _context.Categories.ToList();
+            var existingPetsCategories = new List<PetsCategories>();
+            var resultCategories = new List<Categories>();
+
+            //var test = await _context.PetsCategories.ForEachAsync(c => c.CategoryId.Equals());
+            foreach (var category in existingCategories)
+            {
+                existingPetsCategories.Add(_context.PetsCategories.Where(c => c.CategoryId.Equals(category.Id)).Distinct().FirstOrDefault());
+            }
+            existingPetsCategories.RemoveAll(item => item is null);
+            foreach (var existingCategory in existingPetsCategories)
+            {
+                resultCategories.Add(existingCategories.Find(c => c.Id.Equals(existingCategory.CategoryId)));
+                ViewData["CategoryId"] = new SelectList(resultCategories, "Id", existingCategory.CategoryId.ToString());
+            }
+
+
+            ViewBag.ExistingPetsCategories = resultCategories;
+
+
+        }
 
         // Get categories associated with pet image
         public async Task<IActionResult> PetCategories(Guid petId)
@@ -64,7 +91,7 @@ namespace PetsProject.Controllers
             var petsCategoriesModel = new PetsCategories();
 
             var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
-            ViewBag.CategoriesWithPets = categories;
+            ViewBag.CategoriesWithPetAssociated = categories;
             foundPets = await _context.Pets.Where(p => p.Id.Equals(petId)).FirstOrDefaultAsync();
             if (!categories.Any())
             {
@@ -94,6 +121,11 @@ namespace PetsProject.Controllers
 
             //Categories not associated with pet
             CategoriesWithNoPet(foundPets);
+
+            //Set existing categories for filtering
+
+            if(_context.PetsCategories is not null) CategoriesAlreadyAssociatedWithPets();
+            
 
 
             ViewBag.PetCategoriesSaved = foundPets.Categories.Count > 0 ? foundPets.Categories : null;

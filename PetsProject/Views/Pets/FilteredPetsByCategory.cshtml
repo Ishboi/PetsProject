@@ -19,7 +19,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                <img src="data:image/png;base64,@item.Base64Image" alt="Animal Image" class="input-bottom" />
+                <img src="data:image/png;base64,@item.Base64Image" alt="Animal Image" class="input-bottom"  height=150/>
                 <input type="hidden" asp-for="@item.Base64Image" />
                 <input type="hidden" value="@item.Id" asp-for="@item.Id" />
 
