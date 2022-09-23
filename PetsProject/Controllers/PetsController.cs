@@ -13,6 +13,7 @@ using PetsProject.Data;
 using PetsProject.Models;
 using PetsProject.Controllers;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace PetsProject.Controllers
 {
@@ -89,6 +90,7 @@ namespace PetsProject.Controllers
             var foundPets = new Pets();
             var categoriesModel = new Categories();
             var petsCategoriesModel = new PetsCategories();
+            
 
             var categories = _context.PetsCategories.Where(p => p.PetId.Equals(petId));
             ViewBag.CategoriesWithPetAssociated = categories;
@@ -103,6 +105,7 @@ namespace PetsProject.Controllers
                 {
                     foundPets = await _context.Pets.Where(p => p.Id.Equals(item.PetId)).FirstOrDefaultAsync();
                     petsCategoriesModel.Pets = item.Pets;
+                    petsCategoriesModel.Pets.Categories = _context.Categories.ToList();
                     petsCategoriesModel.PetId = item.PetId;
 
                     categoriesModel = await _context.Categories.Where(c => c.Id.Equals(item.CategoryId)).FirstOrDefaultAsync();
@@ -112,7 +115,7 @@ namespace PetsProject.Controllers
                         categoriesModel.Id = item.Categories.Id;
                         petsCategoriesModel.CategoryId = item.CategoryId;
 
-                        foundPets.Categories.Add(categoriesModel);
+                        //foundPets.Categories.Add(categoriesModel);
                     }
 
                 }
